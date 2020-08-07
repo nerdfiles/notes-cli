@@ -1,0 +1,12 @@
+{
+  "name": "notes-cli",
+  "version": "0.0.1",
+  "description": "a cheap cli note taking app",
+  "main": "index.js",
+  "scripts": {
+    "add": "node ./index.js add"
+  },
+  "keywords": ["cli", "node"],
+  "author": "nerdfiles@gmail.com",
+  "license": "WTFPL"
+}
