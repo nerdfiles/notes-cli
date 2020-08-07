@@ -5,11 +5,13 @@ a cheap cli note taking app
 ## Install 
 
 1. Clone
+2. Install https://stedolan.github.io/jq/
 
 ## Usage
 
 ```
 $ npm run add NOTE
+$ npm run add hi --silent | jq ''
 ```
 
 ## TODO
