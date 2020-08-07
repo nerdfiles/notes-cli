@@ -1,39 +1,48 @@
 const fs = require('fs');
 
 class CliCapture {
-  constructor() {
+
+  constructor(config) {
+
     const argv = process.argv;
-    this.command = argv[2];
-    this.content = argv[3];
+    this.command = config.command || argv[2];
+    this.content = config.content || argv[3];
+    this.cli = new NotesCli(config);
 
-    if (this.command.includes('add') && this.content) {
-      this.add();
-    }
-
+    this.execute();
   }
 
-  add() {
-    const notesCli = new NotesCli();
-    notesCli.addNote(this.content);
+  /**
+   * execute
+   *
+   * @returns {undefined}
+   */
+  execute() {
+
+    try {
+      this.cli[this.command](this.content);
+    } catch (e) {
+      console.log('flunk');
+    }
   }
 }
 
 class NotesCli {
 
-  constructor() {
-    this.notesPath = './notes.json';
+  constructor(config) {
+    this.notesPath = config.notesPath || './notes.json';
     this.notesList = null;
   }
 
   /**
    * create
    *
-   * @returns {undefined}
+   * @returns {Promise}
    */
   create() {
 
     return new Promise((res, rej) => {
-      this.initNotes().then((resp) => {
+      this.init().then((resp) => {
 
         fs.readFile(this.notesPath, {encoding: 'utf8', flag: 'r'}, (err, file) => {
           this.notesList = file;
@@ -46,11 +55,11 @@ class NotesCli {
   }
 
   /**
-   * initNotes
+   * init
    *
-   * @returns {undefined}
+   * @returns {Promise}
    */
-  initNotes() {
+  init() {
 
     return new Promise((res, rej) => {
       fs.exists(this.notesPath, (ret) => {
@@ -64,32 +73,41 @@ class NotesCli {
   }
 
   /**
-   * addNote
+   * add
    *
    * @returns {undefined}
    */
-  addNote(content) {
+  add(content) {
 
     this.create().then(() => {
-      const j = JSON.parse(this.notesList);
+      const parsedNotesList = JSON.parse(this.notesList);
 
-      const d = new Date();
-      const formattedDate = `${d.toLocaleDateString()} ${d.toLocaleTimeString()}`;
-      j[formattedDate] = content;
-      console.log(JSON.stringify(j));
-      fs.writeFileSync(this.notesPath, JSON.stringify(j), {});
-    })
+      const rawDate = new Date();
+      const formattedDate = `${rawDate.toLocaleDateString()} ${rawDate.toLocaleTimeString()}`;
+      parsedNotesList[formattedDate] = content;
+      console.log(JSON.stringify(parsedNotesList));
+      fs.writeFileSync(this.notesPath, JSON.stringify(parsedNotesList), {});
+    });
   }
 
   /**
-   * deleteNote
+   * remove
    *
    * @returns {undefined}
    */
-  deleteNote() {
+  remove() {
+    console.log('pass');
   }
 }
 
-const cliCapture = new CliCapture();
+
+module.exports = CliCapture;
+
+if (process.argv.length > 2) {
+  // Run and capture cli
+  const cliCapture = new CliCapture({
+    notesPath: './notes.json'
+  });
+}
 
 
